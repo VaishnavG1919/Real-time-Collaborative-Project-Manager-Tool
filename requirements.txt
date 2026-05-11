@@ -1,0 +1,11 @@
+react==18.x
+node.js==18.x
+express==4.x
+mongodb==6.x
+mongoose==7.x
+socket.io==4.x
+socket.io-client==4.x
+cors==2.x
+dotenv==16.x
+nodemon==3.x
+axios==1.x
