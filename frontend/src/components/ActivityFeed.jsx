@@ -1,16 +1,6 @@
-import { useState, useEffect } from 'react';
 import { useSocketEvent } from '../hooks/useSocket';
 
-const ActivityFeed = ({ projectId }) => {
-  const [activities, setActivities] = useState([]);
-
-  const addActivity = (msg) => {
-    setActivities((prev) => [
-      { id: Date.now(), msg, time: new Date() },
-      ...prev.slice(0, 49),
-    ]);
-  };
-
+const ActivityFeed = ({ projectId, activities, addActivity }) => {
   useSocketEvent('task-created', (task) => addActivity(`📋 Task created: ${task.title}`), []);
   useSocketEvent('task-updated', (task) => addActivity(`✏️ Task updated: ${task.title}`), []);
   useSocketEvent('task-deleted', (id) => addActivity(`🗑️ Task deleted`), []);
@@ -32,7 +22,7 @@ const ActivityFeed = ({ projectId }) => {
             <li key={a.id} className="activity-item">
               <span className="activity-msg">{a.msg}</span>
               <span className="activity-time">
-                {a.time.toLocaleTimeString()}
+                {new Date(a.time).toLocaleTimeString()}
               </span>
             </li>
           ))}

@@ -51,15 +51,15 @@ const socketHandler = (io) => {
     });
 
     socket.on('task-updated', ({ projectId, task }) => {
-      socket.to(`project:${projectId}`).emit('task-updated', task);
+      io.to(`project:${projectId}`).emit('task-updated', task);
     });
 
     socket.on('task-deleted', ({ projectId, taskId }) => {
-      socket.to(`project:${projectId}`).emit('task-deleted', taskId);
+      io.to(`project:${projectId}`).emit('task-deleted', taskId);
     });
 
     socket.on('task-moved', ({ projectId, taskId, fromStatus, toStatus, task }) => {
-      socket.to(`project:${projectId}`).emit('task-moved', {
+      io.to(`project:${projectId}`).emit('task-moved', {
         taskId,
         fromStatus,
         toStatus,
@@ -69,7 +69,7 @@ const socketHandler = (io) => {
 
     // ── COMMENTS ──────────────────────────────────────────────────
     socket.on('comment-added', ({ projectId, task }) => {
-      socket.to(`project:${projectId}`).emit('comment-added', task);
+      io.to(`project:${projectId}`).emit('comment-added', task);
     });
 
     // ── TYPING INDICATORS ─────────────────────────────────────────

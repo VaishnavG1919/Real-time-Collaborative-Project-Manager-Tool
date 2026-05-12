@@ -21,6 +21,21 @@ const ProjectBoard = () => {
   const [showNewTask, setShowNewTask] = useState(null); // column name
   const [newTaskTitle, setNewTaskTitle] = useState('');
   const [loading, setLoading] = useState(true);
+  const [activities, setActivities] = useState(() => {
+    const stored = localStorage.getItem(`activities-${id}`);
+    return stored ? JSON.parse(stored) : [];
+  });
+
+  const addActivity = (msg) => {
+    setActivities((prev) => {
+      const updated = [
+        { id: Date.now(), msg, time: new Date().toISOString() },
+        ...prev.slice(0, 49),
+      ];
+      localStorage.setItem(`activities-${id}`, JSON.stringify(updated));
+      return updated;
+    });
+  };
 
   // Join socket room
   useEffect(() => {
@@ -59,7 +74,8 @@ const ProjectBoard = () => {
 
   useSocketEvent('task-deleted', (taskId) => {
     setTasks((prev) => prev.filter((t) => t._id !== taskId));
-  }, []);
+    if (selectedTask?._id === taskId) setSelectedTask(null);
+  }, [selectedTask]);
 
   useSocketEvent('task-moved', ({ taskId, toStatus, task }) => {
     setTasks((prev) =>
@@ -100,6 +116,7 @@ const ProjectBoard = () => {
           toStatus,
           task: res.data,
         });
+        addActivity(`🔀 "${res.data.title}" moved to ${toStatus}`);
       } catch {
         // Rollback
         setTasks((prev) =>
@@ -119,8 +136,8 @@ const ProjectBoard = () => {
         project: id,
         status: column,
       });
-      setTasks((prev) => [...prev, res.data]);
       emit('task-created', { projectId: id, task: res.data });
+      addActivity(`📋 Task created: ${res.data.title}`);
       setNewTaskTitle('');
       setShowNewTask(null);
       toast.success('Task created');
@@ -130,13 +147,14 @@ const ProjectBoard = () => {
   };
 
   const handleTaskUpdate = (updated) => {
-    setTasks((prev) => prev.map((t) => (t._id === updated._id ? updated : t)));
-    setSelectedTask(updated);
+    emit('task-updated', { projectId: id, task: updated });
+    addActivity(`✏️ Task updated: ${updated.title}`);
   };
 
   const handleTaskDelete = (taskId) => {
-    setTasks((prev) => prev.filter((t) => t._id !== taskId));
-    setSelectedTask(null);
+    const task = tasks.find((t) => t._id === taskId);
+    emit('task-deleted', { projectId: id, taskId });
+    if (task) addActivity(`🗑️ Task deleted: ${task.title}`);
   };
 
   if (loading) return <div className="board-loading">Loading board...</div>;
@@ -248,7 +266,7 @@ const ProjectBoard = () => {
 
         {showActivity && (
           <div className="board-sidebar">
-            <ActivityFeed projectId={id} />
+            <ActivityFeed projectId={id} activities={activities} addActivity={addActivity} />
           </div>
         )}
       </div>

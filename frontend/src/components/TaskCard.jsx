@@ -13,9 +13,11 @@ const TaskCard = ({ task, onClick, draggableProps, dragHandleProps, innerRef }) 
       className="task-card"
       ref={innerRef}
       {...draggableProps}
-      {...dragHandleProps}
       onClick={() => onClick(task)}
     >
+      <div className="task-drag-handle" {...dragHandleProps} title="Drag to move">
+        ≡
+      </div>
       <div
         className="task-priority-bar"
         style={{ background: priorityColors[task.priority] }}

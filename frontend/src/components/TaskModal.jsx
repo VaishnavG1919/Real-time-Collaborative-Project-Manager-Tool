@@ -25,7 +25,7 @@ const TaskModal = ({ task, project, onClose, onUpdate, onDelete }) => {
     try {
       const res = await updateTask(task._id, form);
       onUpdate(res.data);
-      emit('task-updated', { projectId: project._id, task: res.data });
+      onClose();
       toast.success('Task updated');
     } catch {
       toast.error('Failed to update task');
@@ -39,7 +39,6 @@ const TaskModal = ({ task, project, onClose, onUpdate, onDelete }) => {
     try {
       await deleteTask(task._id);
       onDelete(task._id);
-      emit('task-deleted', { projectId: project._id, taskId: task._id });
       onClose();
       toast.success('Task deleted');
     } catch {
